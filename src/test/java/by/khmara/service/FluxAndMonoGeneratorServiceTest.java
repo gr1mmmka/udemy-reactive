@@ -99,4 +99,22 @@ class FluxAndMonoGeneratorServiceTest {
                 .expectNext("A","N", "T", "O", "N")
                 .verifyComplete();
     }
+
+    @Test
+    void fluxConcat() {
+        var fluxConcat = fluxAndMonoGeneratorService.fluxConcat();
+
+        StepVerifier.create(fluxConcat)
+                .expectNextCount(6)
+                .verifyComplete();
+    }
+
+    @Test
+    void fluxZip() {
+        var fluxZip = fluxAndMonoGeneratorService.fluxZip();
+
+        StepVerifier.create(fluxZip)
+                .expectNextCount(3)
+                .verifyComplete();
+    }
 }

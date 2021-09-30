@@ -54,6 +54,21 @@ public class FluxAndMonoGeneratorService {
                 .log();
     }
 
+    public Flux<String> fluxConcat() {
+        var abcFlux = Flux.just("A", "B", "C");
+        var defFlux = Flux.just("D", "E", "F");
+
+        return Flux.concat(abcFlux, defFlux)
+                .log();
+    }
+
+    public Flux<String> fluxZip() {
+        var abcFlux = Flux.just("A", "B", "C");
+        var defFlux = Flux.just("D", "E", "F");
+
+        return Flux.zip(abcFlux, defFlux, (first, second) -> first+second).log();
+    }
+
     public Mono<String> nameMono() {
         return Mono.just("Anton");
     }
