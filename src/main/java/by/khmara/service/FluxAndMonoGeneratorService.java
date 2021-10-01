@@ -1,5 +1,7 @@
 package by.khmara.service;
 
+import by.khmara.exception.ReactorException;
+import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -8,6 +10,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.function.Function;
 
+@Slf4j
 public class FluxAndMonoGeneratorService {
 
     public Flux<String> namesFlux() {
@@ -67,6 +70,68 @@ public class FluxAndMonoGeneratorService {
         var defFlux = Flux.just("D", "E", "F");
 
         return Flux.zip(abcFlux, defFlux, (first, second) -> first+second).log();
+    }
+
+    public Flux<String> fluxWithException() {
+        return Flux.just("A","B", "C")
+                .concatWith(Flux.error(new RuntimeException("Exception orrurred")))
+                .concatWith(Flux.just("D", "E", "F"));
+    }
+
+    public Flux<String> fluxOnErrorReturn() {
+        return Flux.just("A","B", "C")
+                .concatWith(Flux.error(new RuntimeException("Exception orrurred")))
+                .onErrorReturn("D");
+    }
+
+    public Flux<String> fluxOnErrorResume(Exception e) {
+        var recoveryFlux = Flux.just("D", "E", "F");
+
+        return Flux.just("A","B", "C")
+                .concatWith(Flux.error(e))
+                .onErrorResume(ex -> {
+                    log.error("{} occurred in fluxOnErrorResume()", ex);
+                    return recoveryFlux;
+                }).log();
+    }
+
+    public Flux<String> fluxOnErrorContinue() {
+
+        return Flux.just("A", "B", "C")
+                .map(letter -> {
+                    if(letter.equals("B"))
+                        throw new IllegalStateException();
+                    else
+                        return letter;
+                })
+                .onErrorContinue((ex, letter) -> {
+                    log.error("Exception is ", ex);
+                    log.info("Letter with exception: {}", letter);
+                }).log();
+    }
+
+    public Flux<String> fluxOnErrorMap() {
+
+        return Flux.just("A", "B", "C")
+                .map(letter -> {
+                    if(letter.equals("B"))
+                        throw new IllegalStateException();
+                    else
+                        return letter;
+                })
+                .onErrorMap((ex) -> {
+                    log.error("Exception is ", ex);
+                    return new ReactorException(ex.getMessage(), ex);
+                }).log();
+    }
+
+    public Flux<String> fluxDoOnError() {
+        return Flux.just("A","B","C")
+                .concatWith(Flux.error(new IllegalStateException()))
+                .doOnError(ex -> {
+                    log.error("Exception is ", ex);
+                })
+                .log();
     }
 
     public Mono<String> nameMono() {

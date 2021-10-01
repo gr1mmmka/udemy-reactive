@@ -1,5 +1,6 @@
 package by.khmara.service;
 
+import by.khmara.exception.ReactorException;
 import org.junit.jupiter.api.Test;
 import reactor.test.StepVerifier;
 
@@ -116,5 +117,63 @@ class FluxAndMonoGeneratorServiceTest {
         StepVerifier.create(fluxZip)
                 .expectNextCount(3)
                 .verifyComplete();
+    }
+
+    @Test
+    void fluxWithException() {
+        var fluxWithException = fluxAndMonoGeneratorService.fluxWithException();
+
+        StepVerifier.create(fluxWithException)
+                .expectNext("A","B", "C")
+                .expectError(RuntimeException.class)
+                .verify();
+    }
+
+    @Test
+    void fluxOnErrorReturn() {
+        var fluxOnErrorReturn = fluxAndMonoGeneratorService.fluxOnErrorReturn();
+
+        StepVerifier.create(fluxOnErrorReturn)
+                .expectNext("A","B", "C", "D")
+                .verifyComplete();
+    }
+
+    @Test
+    void fluxOnErrorResume() {
+        var exception = new IllegalStateException();
+        var fluxOnErrorResume = fluxAndMonoGeneratorService.fluxOnErrorResume(exception);
+
+        StepVerifier.create(fluxOnErrorResume)
+                .expectNext("A","B", "C", "D", "E", "F")
+                .verifyComplete();
+    }
+
+    @Test
+    void  fluxOnErrorContinue() {
+        var fluxOnErrorContinue = fluxAndMonoGeneratorService.fluxOnErrorContinue();
+
+        StepVerifier.create(fluxOnErrorContinue)
+                .expectNext("A", "C")
+                .verifyComplete();
+    }
+
+    @Test
+    void fluxOnErrorMap() {
+        var fluxOnErrorMap = fluxAndMonoGeneratorService.fluxOnErrorMap();
+
+        StepVerifier.create(fluxOnErrorMap)
+                .expectNext("A")
+                .expectError(ReactorException.class)
+                .verify();
+    }
+
+    @Test
+    void fluxDoOnError() {
+        var fluxDoOnError = fluxAndMonoGeneratorService.fluxDoOnError();
+
+        StepVerifier.create(fluxDoOnError)
+                .expectNext("A","B","C")
+                .expectError(IllegalStateException.class)
+                .verify();
     }
 }
