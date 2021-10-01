@@ -2,11 +2,14 @@ package by.khmara.service;
 
 import by.khmara.domain.Movie;
 import by.khmara.domain.Review;
+import by.khmara.exception.MovieException;
+import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
 
+@Slf4j
 public class MovieReactiveService {
 
     private MovieInfoService movieInfo;
@@ -26,7 +29,11 @@ public class MovieReactiveService {
 
             return reviews
                     .map(reviewList -> new Movie(movieInfo, reviewList));
-        });
+        })
+                .onErrorMap(ex -> {
+                    log.error("Exception from MovieReactiveService is ", ex);
+                    return new MovieException(ex, ex.getMessage());
+                });
     }
 
     public Mono<Movie> getMovieById(long movieId) {
