@@ -51,4 +51,18 @@ class MovieReactiveServiceMockTest {
                 .expectError(MovieException.class)
                 .verify();
     }
+
+    @Test
+    void getAllMoviesWithExceptionRetry() {
+        Mockito.when(movieInfoService.retrieveMoviesFlux())
+                .thenCallRealMethod();
+        Mockito.when(reviewService.retrieveReviewsFlux(anyLong()))
+                .thenThrow(new RuntimeException("Exception from review service"));
+
+        var fluxMovies = movieReactiveService.getAllMoviesWithRetry();
+
+        StepVerifier.create(fluxMovies)
+                .expectError(MovieException.class)
+                .verify();
+    }
 }
