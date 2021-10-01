@@ -1,6 +1,7 @@
 package by.khmara.service;
 
 import by.khmara.domain.Movie;
+import by.khmara.domain.Revenue;
 import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -12,8 +13,10 @@ class MovieReactiveServiceTest {
 
     private ReviewService reviewService = new ReviewService();
     private MovieInfoService movieInfoService = new MovieInfoService();
+    private RevenueService revenueService = new RevenueService();
 
     private MovieReactiveService movieReactiveService = new MovieReactiveService(movieInfoService, reviewService);
+    private MovieReactiveService movieReactiveServiceWithRevenue = new MovieReactiveService(movieInfoService, reviewService, revenueService);
 
     @Test
     void testGetAllMovies() {
@@ -39,6 +42,17 @@ class MovieReactiveServiceTest {
                     assertEquals(2005, m.getMovie().getYear());
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    void getMovieByIdWithRevenue() {
+            Mono<Movie> movie = movieReactiveServiceWithRevenue.getMovieByIdWithRevenue(100L);
+
+            StepVerifier.create(movie)
+                    .assertNext(m ->
+                            assertNotNull(m.getRevenue()))
+                    .verifyComplete();
+
     }
 
 }
