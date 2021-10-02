@@ -25,4 +25,31 @@ class FluxAndMonoSchedulerServiceTest {
                 .expectNextCount(6)
                 .verifyComplete();
     }
+
+    @Test
+    void fluxParallel() {
+        var names = fluxAndMonoSchedulerService.fluxParallel();
+
+        StepVerifier.create(names)
+                .expectNextCount(3)
+                .verifyComplete();
+    }
+
+    @Test
+    void fluxParallel_withFlatMap() {
+        var names = fluxAndMonoSchedulerService.fluxParallel_withFlatMap();
+
+        StepVerifier.create(names)
+                .expectNextCount(3)
+                .verifyComplete();
+    }
+
+    @Test
+    void fluxParallel_withFlatMapSequential() {
+        var names = fluxAndMonoSchedulerService.fluxParallel_withFlatMapSequential();
+
+        StepVerifier.create(names)
+                .expectNextCount(3)
+                .verifyComplete();
+    }
 }
