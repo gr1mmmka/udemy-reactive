@@ -46,10 +46,10 @@ public class MovieReactiveService {
     }
 
     public Flux<Movie> getAllMoviesWithRetry() {
-        var moviesInfoFlux = movieInfo.retrieveMoviesFlux();
+        var moviesInfoFlux = movieInfo.retrieveMovieInfo_restClient();
 
         return moviesInfoFlux.flatMap(movieInfo -> {
-                    Mono<List<Review>> reviews = review.retrieveReviewsFlux(movieInfo.getMovieInfoId())
+                    Mono<List<Review>> reviews = review.retrieveReviews_restClient(movieInfo.getMovieInfoId())
                             .collectList();
 
                     return reviews
